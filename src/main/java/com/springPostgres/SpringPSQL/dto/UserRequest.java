@@ -11,7 +11,9 @@ import lombok.*;
 @Setter
 public class UserRequest {
     @NotNull
-    private String userName;
+    private String firstName;
+    @NotNull
+    private String lastName;
     @NotNull
     private String email;
     @NotNull

@@ -4,6 +4,12 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -11,9 +17,9 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
-public class User {
+
+//now to achieve auth implement this class from UserDetails
+public class User implements UserDetails {
     @Id
     @SequenceGenerator(
             name="student_sequence",
@@ -28,10 +34,14 @@ public class User {
     @Column(name="id", nullable = false, unique = true, updatable = false, length = 50)
     private Integer id;
 
-    @NotNull(message="name is required")
+    @NotNull(message="first name is required")
     @Size(min = 3, max = 50)
     @Column(nullable = false)
-    private String userName;
+    private String firstName;
+    @NotNull(message="last name is required")
+    @Size(min = 3, max = 50)
+    @Column(nullable = false)
+    private String lastName;
     @NotNull(message="email is required")
     @Email
     private String email;
@@ -39,4 +49,35 @@ public class User {
     @Size(min=5, max = 8)
     @Column(nullable = false)
     private String password;
+    private Role role;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
